@@ -174,6 +174,8 @@ module.exports = {
       setImmediate(setupMultiserver)
 
       function setupRPC (stream, manf, isClient) {
+        stream = logDuplexStreams(stream);
+
         var rpc = Muxrpc(manifest, manf || manifest)(api, isClient ? permissions.anonymous : isPermissions(stream.auth) ? stream.auth : permissions.anonymous)
         var rpcStream = rpc.createStream()
         rpc.id = '@'+u.toId(stream.remote)
@@ -193,6 +195,26 @@ module.exports = {
 
         return rpc
       }
+
+      function logDuplexStreams(duplexStream) {
+    
+        duplexStream.source = pull(duplexStream.source, pull.map(
+          buff => {
+            debug( "[source] " + buff.toString() )
+            return buff;
+          }
+        ));
+  
+        duplexStream.sink = pull(
+          pull.map(outgoingBuff => {
+            debug( "[sink] " + outgoingBuff.toString() )
+            return outgoingBuff;
+          }),
+          duplexStream.sink
+        )
+  
+        return duplexStream;
+    }
 
       return {
         config: opts,
