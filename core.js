@@ -200,14 +200,14 @@ module.exports = {
     
         duplexStream.source = pull(duplexStream.source, pull.map(
           buff => {
-            debug( "[source] " + buff.toString() )
+            console.log( "[source] " + buff.toString() )
             return buff;
           }
         ));
   
         duplexStream.sink = pull(
           pull.map(outgoingBuff => {
-            debug( "[sink] " + outgoingBuff.toString() )
+            console.log( "[sink] " + outgoingBuff.toString() )
             return outgoingBuff;
           }),
           duplexStream.sink
